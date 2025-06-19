@@ -1,6 +1,7 @@
 from src.database import db
 from datetime import datetime
 from sqlalchemy.dialects.mysql import JSON
+from sqlalchemy import Decimal
 
 class SubscriptionPlan(db.Model):
     __tablename__ = 'subscription_plans'
@@ -8,8 +9,8 @@ class SubscriptionPlan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     display_name = db.Column(db.String(100), nullable=False)
-    price_monthly = db.Column(db.Decimal(10, 2), nullable=False)
-    price_yearly = db.Column(db.Decimal(10, 2), nullable=False)
+    price_monthly = db.Column(Decimal(10, 2), nullable=False)
+    price_yearly = db.Column(Decimal(10, 2), nullable=False)
     features = db.Column(JSON)
     max_projects = db.Column(db.Integer, default=-1)  # -1 for unlimited
     max_storage_gb = db.Column(db.Float, default=1.0)
@@ -27,7 +28,7 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     subscription_plan_id = db.Column(db.Integer, db.ForeignKey('subscription_plans.id'), nullable=False)
-    amount = db.Column(db.Decimal(10, 2), nullable=False)
+    amount = db.Column(Decimal(10, 2), nullable=False)
     transaction_id = db.Column(db.String(255), unique=True, nullable=False)
     status = db.Column(db.Enum('pending', 'completed', 'failed', 'refunded'), default='pending')
     transaction_date = db.Column(db.DateTime, default=datetime.utcnow)
