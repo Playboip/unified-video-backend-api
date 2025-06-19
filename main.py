@@ -73,6 +73,7 @@ from src.routes.assets import assets_bp
 from src.routes.subscriptions import subscriptions_bp
 from src.routes.white_label import white_label_bp
 from src.routes.video_editor import editor_bp
+from src.routes.upload import upload_bp
 
 # Register blueprints
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -81,6 +82,7 @@ app.register_blueprint(assets_bp, url_prefix='/api/assets')
 app.register_blueprint(subscriptions_bp, url_prefix='/api/subscriptions')
 app.register_blueprint(white_label_bp, url_prefix='/api/white-label')
 app.register_blueprint(editor_bp, url_prefix='/api/editor')
+app.register_blueprint(upload_bp, url_prefix='/api/upload')
 
 # Error handlers
 @app.errorhandler(404)
@@ -207,3 +209,4 @@ if __name__ == '__main__':
             db.session.commit()
 
     app.run(host='0.0.0.0', port=5000, debug=True)
+
