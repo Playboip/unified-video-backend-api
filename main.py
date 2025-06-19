@@ -13,7 +13,16 @@ sys.path.insert(0, os.path.dirname(__file__))
 # Initialize Flask app
 app = Flask(__name__)
 
-# Import and initialize database
+# Configure app settings FIRST
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev_secret_key_change_in_production')
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt_dev_secret_key_change_in_production')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+
+# Database configuration BEFORE db.init_app()
+app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv('DB_USERNAME', 'root')}:{os.getenv('DB_PASSWORD', 'password')}@{os.getenv('DB_HOST', 'localhost')}:{os.getenv('DB_PORT', '3306')}/{os.getenv('DB_NAME', 'mydb')}"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Import and initialize database AFTER configuration
 from src.database import db
 db.init_app(app)
 
@@ -49,14 +58,6 @@ CORS(app,
      ],
      supports_credentials=True  # Important for authentication cookies/sessions
  )
-
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev_secret_key_change_in_production')
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt_dev_secret_key_change_in_production')
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
-
-# Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv('DB_USERNAME', 'root')}:{os.getenv('DB_PASSWORD', 'password')}@{os.getenv('DB_HOST', 'localhost')}:{os.getenv('DB_PORT', '3306')}/{os.getenv('DB_NAME', 'mydb')}"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
 jwt = JWTManager(app)
