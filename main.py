@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_cors import CORS
 from datetime import datetime, timedelta
 import os
 import sys
@@ -8,8 +9,43 @@ import json
 
 # Ensure proper path for imports
 sys.path.insert(0, os.path.dirname(__file__))
+
 # Initialize Flask app
 app = Flask(__name__)
+
+# Configure CORS for your Unified Video Platform
+# This allows your Netlify-hosted frontend applications to communicate with your backend API
+CORS(app, 
+     origins=[
+         # Your Netlify domains - replace these with your actual Netlify URLs
+         'https://ai-video-remixer.netlify.app',
+         'https://vibe-video-editor.netlify.app', 
+         'https://powerpoint-converter.netlify.app',
+         'https://motion-graphics-studio.netlify.app',
+         'https://magic-clipper-pro.netlify.app',
+         
+         # Local development URLs (for testing)
+         'http://localhost:3000',
+         'http://localhost:8080',
+         'http://127.0.0.1:3000',
+         'http://127.0.0.1:8080',
+         
+         # Add any custom domains you might use later
+         # 'https://your-custom-domain.com',
+     ],
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+     allow_headers=[
+         'Content-Type',
+         'Authorization',
+         'X-Requested-With',
+         'Accept',
+         'Origin',
+         'Cache-Control',
+         'X-File-Name'
+     ],
+     supports_credentials=True  # Important for authentication cookies/sessions
+)
+
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev_secret_key_change_in_production')
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt_dev_secret_key_change_in_production')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
@@ -78,97 +114,95 @@ def handle_white_label_domain():
             request.white_label_user_id = None
             request.white_label_config = None
 
-# Initialize database
-@app.before_first_request
-def initialize_database():
-    db.create_all()
-    
-    # Create default subscription plans if they don't exist
-    if SubscriptionPlan.query.count() == 0:
-        plans = [
-            {
-                'name': 'free',
-                'display_name': 'Free',
-                'price_monthly': 0,
-                'price_yearly': 0,
-                'features': json.dumps([
-                    '5 projects',
-                    '720p max resolution',
-                    '5 minutes max video length',
-                    'Basic effects only',
-                    'Watermarked exports'
-                ]),
-                'max_projects': 5,
-                'max_storage_gb': 1.0,
-                'max_video_length': 5,
-                'max_resolution': '720p',
-                'allows_white_labeling': False
-            },
-            {
-                'name': 'basic',
-                'display_name': 'Basic',
-                'price_monthly': 9.99,
-                'price_yearly': 99.99,
-                'features': json.dumps([
-                    'Unlimited projects',
-                    '1080p resolution',
-                    '15 minutes max video length',
-                    'All standard effects',
-                    'No watermark'
-                ]),
-                'max_projects': -1,  # Unlimited
-                'max_storage_gb': 10.0,
-                'max_video_length': 15,
-                'max_resolution': '1080p',
-                'allows_white_labeling': False
-            },
-            {
-                'name': 'pro',
-                'display_name': 'Pro',
-                'price_monthly': 19.99,
-                'price_yearly': 199.99,
-                'features': json.dumps([
-                    'Unlimited projects',
-                    '4K resolution',
-                    'Unlimited video length',
-                    'All premium effects',
-                    'AI-powered editing',
-                    'Priority support'
-                ]),
-                'max_projects': -1,  # Unlimited
-                'max_storage_gb': 50.0,
-                'max_video_length': -1,  # Unlimited
-                'max_resolution': '4k',
-                'allows_white_labeling': False
-            },
-            {
-                'name': 'enterprise',
-                'display_name': 'Enterprise',
-                'price_monthly': 49.99,
-                'price_yearly': 499.99,
-                'features': json.dumps([
-                    'Unlimited projects',
-                    '8K resolution',
-                    'Unlimited video length',
-                    'All premium effects',
-                    'AI-powered editing',
-                    'Team collaboration',
-                    'White labeling',
-                    'Dedicated support'
-                ]),
-                'max_projects': -1,  # Unlimited
-                'max_storage_gb': 200.0,
-                'max_video_length': -1,  # Unlimited
-                'max_resolution': '8k',
-                'allows_white_labeling': True
-            }
-        ]
-        
-        for plan_data in plans:
-            plan = SubscriptionPlan(**plan_data)
-            db.session.add(plan)
-        
-        db.session.commit()
-
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+        
+        # Create default subscription plans if they don't exist
+        if SubscriptionPlan.query.count() == 0:
+            plans = [
+                {
+                    'name': 'free',
+                    'display_name': 'Free',
+                    'price_monthly': 0,
+                    'price_yearly': 0,
+                    'features': json.dumps([
+                        '5 projects',
+                        '720p max resolution',
+                        '5 minutes max video length',
+                        'Basic effects only',
+                        'Watermarked exports'
+                    ]),
+                    'max_projects': 5,
+                    'max_storage_gb': 1.0,
+                    'max_video_length': 5,
+                    'max_resolution': '720p',
+                    'allows_white_labeling': False
+                },
+                {
+                    'name': 'basic',
+                    'display_name': 'Basic',
+                    'price_monthly': 9.99,
+                    'price_yearly': 99.99,
+                    'features': json.dumps([
+                        'Unlimited projects',
+                        '1080p resolution',
+                        '15 minutes max video length',
+                        'All standard effects',
+                        'No watermark'
+                    ]),
+                    'max_projects': -1,  # Unlimited
+                    'max_storage_gb': 10.0,
+                    'max_video_length': 15,
+                    'max_resolution': '1080p',
+                    'allows_white_labeling': False
+                },
+                {
+                    'name': 'pro',
+                    'display_name': 'Pro',
+                    'price_monthly': 19.99,
+                    'price_yearly': 199.99,
+                    'features': json.dumps([
+                        'Unlimited projects',
+                        '4K resolution',
+                        'Unlimited video length',
+                        'All premium effects',
+                        'AI-powered editing',
+                        'Priority support'
+                    ]),
+                    'max_projects': -1,  # Unlimited
+                    'max_storage_gb': 50.0,
+                    'max_video_length': -1,  # Unlimited
+                    'max_resolution': '4k',
+                    'allows_white_labeling': False
+                },
+                {
+                    'name': 'enterprise',
+                    'display_name': 'Enterprise',
+                    'price_monthly': 49.99,
+                    'price_yearly': 499.99,
+                    'features': json.dumps([
+                        'Unlimited projects',
+                        '8K resolution',
+                        'Unlimited video length',
+                        'All premium effects',
+                        'AI-powered editing',
+                        'Team collaboration',
+                        'White labeling',
+                        'Dedicated support'
+                    ]),
+                    'max_projects': -1,  # Unlimited
+                    'max_storage_gb': 200.0,
+                    'max_video_length': -1,  # Unlimited
+                    'max_resolution': '8k',
+                    'allows_white_labeling': True
+                }
+            ]
+            
+            for plan_data in plans:
+                plan = SubscriptionPlan(**plan_data)
+                db.session.add(plan)
+            
+            db.session.commit()
+
     app.run(host='0.0.0.0', port=5000, debug=True)
