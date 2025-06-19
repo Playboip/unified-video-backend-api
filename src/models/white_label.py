@@ -1,4 +1,4 @@
-from src.main import db # Assuming db is initialized in main.py
+from src.database import db # Assuming db is initialized in main.py
 from datetime import datetime
 
 class WhiteLabelConfig(db.Model):
@@ -20,3 +20,4 @@ class WhiteLabelConfig(db.Model):
 
     def __repr__(self):
         return f'<WhiteLabelConfig {self.custom_domain}>'
+

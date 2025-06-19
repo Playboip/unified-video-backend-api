@@ -13,6 +13,10 @@ sys.path.insert(0, os.path.dirname(__file__))
 # Initialize Flask app
 app = Flask(__name__)
 
+# Import and initialize database
+from src.database import db
+db.init_app(app)
+
 # Configure CORS for your Unified Video Platform
 # This allows your Netlify-hosted frontend applications to communicate with your backend API
 CORS(app, 
@@ -55,7 +59,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv('DB_USERNAM
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
-db = SQLAlchemy(app)
 jwt = JWTManager(app)
 
 # Import models after db initialization to avoid circular imports

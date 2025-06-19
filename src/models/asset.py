@@ -1,4 +1,4 @@
-from src.main import db # Assuming db is initialized in main.py
+from src.database import db # Assuming db is initialized in main.py
 from datetime import datetime
 
 class Asset(db.Model):
@@ -11,8 +11,7 @@ class Asset(db.Model):
     asset_type = db.Column(db.String(50)) # e.g., 'video', 'image', 'audio'
     storage_provider = db.Column(db.Enum('firebase', 'cloudinary', 'backblaze'), nullable=False)
     file_path = db.Column(db.String(500), nullable=False)
-    # Renamed 'metadata' to 'asset_metadata' to avoid conflict
-    asset_metadata = db.Column(db.JSON) # For storing additional asset-specific metadata
+    metadata = db.Column(db.JSON) # For storing additional asset-specific metadata
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship('User', backref=db.backref('assets', lazy=True))
@@ -20,3 +19,4 @@ class Asset(db.Model):
 
     def __repr__(self):
         return f'<Asset {self.asset_name}>'
+

@@ -1,4 +1,4 @@
-from src.main import db
+from src.database import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 

@@ -1,4 +1,4 @@
-from src.main import db # Assuming db is initialized in main.py
+from src.database import db # Assuming db is initialized in main.py
 from datetime import datetime
 from sqlalchemy.dialects.mysql import JSON
 
@@ -39,3 +39,4 @@ class Transaction(db.Model):
 
     def __repr__(self):
         return f'<Transaction {self.transaction_id}>'
+
