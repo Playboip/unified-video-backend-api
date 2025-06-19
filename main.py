@@ -13,16 +13,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 # Initialize Flask app
 app = Flask(__name__)
 
-# Configure app settings FIRST
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev_secret_key_change_in_production')
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt_dev_secret_key_change_in_production')
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
-
-# Database configuration BEFORE db.init_app()
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv('DB_USERNAME', 'root')}:{os.getenv('DB_PASSWORD', 'password')}@{os.getenv('DB_HOST', 'localhost')}:{os.getenv('DB_PORT', '3306')}/{os.getenv('DB_NAME', 'mydb')}"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Import and initialize database AFTER configuration
+# Import and initialize database
 from src.database import db
 db.init_app(app)
 
@@ -30,21 +21,18 @@ db.init_app(app)
 # This allows your Netlify-hosted frontend applications to communicate with your backend API
 CORS(app, 
      origins=[
-         # Your Netlify domains - replace these with your actual Netlify URLs
-         'https://ai-video-remixer.netlify.app',
-         'https://vibe-video-editor.netlify.app', 
-         'https://powerpoint-converter.netlify.app',
-         'https://motion-graphics-studio.netlify.app',
-         'https://magic-clipper-pro.netlify.app',
+         # Your actual Netlify domains
+         'https://magicclipperpro.netlify.app',
+         'https://aivideoremixer.netlify.app',
+         'https://vibevideoeditor.netlify.app', 
+         'https://powerpointconverter.netlify.app',
+         'https://motiongraphicsstudio.netlify.app',
          
-         # Local development URLs (for testing )
+         # Local development URLs (for testing)
          'http://localhost:3000',
          'http://localhost:8080',
          'http://127.0.0.1:3000',
          'http://127.0.0.1:8080',
-         
-         # Add any custom domains you might use later
-         # 'https://your-custom-domain.com',
      ],
      methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
      allow_headers=[
@@ -57,7 +45,15 @@ CORS(app,
          'X-File-Name'
      ],
      supports_credentials=True  # Important for authentication cookies/sessions
- )
+)
+
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev_secret_key_change_in_production')
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt_dev_secret_key_change_in_production')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv('DB_USERNAME', 'root')}:{os.getenv('DB_PASSWORD', 'password')}@{os.getenv('DB_HOST', 'localhost')}:{os.getenv('DB_PORT', '3306')}/{os.getenv('DB_NAME', 'mydb')}"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
 jwt = JWTManager(app)
