@@ -1,4 +1,4 @@
-from src.main import db # Assuming db is initialized in main.py
+from src.database import db
 from datetime import datetime
 from sqlalchemy.dialects.mysql import JSON
 

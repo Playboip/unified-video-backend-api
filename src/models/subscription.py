@@ -1,4 +1,4 @@
-from src.database import db # Assuming db is initialized in main.py
+from src.database import db
 from datetime import datetime
 from sqlalchemy.dialects.mysql import JSON
 
@@ -8,13 +8,13 @@ class SubscriptionPlan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     display_name = db.Column(db.String(100), nullable=False)
-    price_monthly = db.Column(db.Float, nullable=False)
-    price_yearly = db.Column(db.Float, nullable=False)
-    features = db.Column(JSON) # Store features as JSON string
-    max_projects = db.Column(db.Integer, default=-1) # -1 for unlimited
-    max_storage_gb = db.Column(db.Float, default=0.0)
-    max_video_length = db.Column(db.Integer, default=-1) # -1 for unlimited
-    max_resolution = db.Column(db.String(50))
+    price_monthly = db.Column(db.Decimal(10, 2), nullable=False)
+    price_yearly = db.Column(db.Decimal(10, 2), nullable=False)
+    features = db.Column(JSON)
+    max_projects = db.Column(db.Integer, default=-1)  # -1 for unlimited
+    max_storage_gb = db.Column(db.Float, default=1.0)
+    max_video_length = db.Column(db.Integer, default=5)  # minutes, -1 for unlimited
+    max_resolution = db.Column(db.String(10), default='720p')
     allows_white_labeling = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -27,16 +27,13 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     subscription_plan_id = db.Column(db.Integer, db.ForeignKey('subscription_plans.id'), nullable=False)
-    amount = db.Column(db.Float, nullable=False)
-    currency = db.Column(db.String(10), default='USD')
-    transaction_date = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.String(50)) # e.g., 'completed', 'pending', 'failed'
-    payment_method = db.Column(db.String(50))
+    amount = db.Column(db.Decimal(10, 2), nullable=False)
     transaction_id = db.Column(db.String(255), unique=True, nullable=False)
+    status = db.Column(db.Enum('pending', 'completed', 'failed', 'refunded'), default='pending')
+    transaction_date = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship('User', backref=db.backref('transactions', lazy=True))
     subscription_plan = db.relationship('SubscriptionPlan', backref=db.backref('transactions', lazy=True))
 
     def __repr__(self):
         return f'<Transaction {self.transaction_id}>'
-

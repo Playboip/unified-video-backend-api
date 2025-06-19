@@ -28,7 +28,7 @@ CORS(app,
          'https://motion-graphics-studio.netlify.app',
          'https://magic-clipper-pro.netlify.app',
          
-         # Local development URLs (for testing)
+         # Local development URLs (for testing )
          'http://localhost:3000',
          'http://localhost:8080',
          'http://127.0.0.1:3000',
@@ -48,7 +48,7 @@ CORS(app,
          'X-File-Name'
      ],
      supports_credentials=True  # Important for authentication cookies/sessions
-)
+ )
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev_secret_key_change_in_production')
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt_dev_secret_key_change_in_production')
